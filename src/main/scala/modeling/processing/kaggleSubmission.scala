@@ -8,7 +8,7 @@ object kaggleSubmission {
   
    /** Create csv to submit to kaggle with predicted classes from all 9 categories for each business in the test image set */
   
-  def createKaggleSubmitObj(alignedData: List[(Int, String, Vector[Int])],
+  def createKaggleSubmitObj(alignedData: alignedData,
                             modelPath: String, 
                             model0: String = "model0",
                             model1: String = "model1",
@@ -34,7 +34,7 @@ object kaggleSubmission {
      
     // transforming the data structure above into a List for each bizID containing a Tuple (bizid, List[Double]) where the Vector[Double] is the 
     // the vector of probabilities 
-     alignedData.map(_._2).distinct map ( x =>
+     alignedData.data.map(_._2).distinct map ( x =>
        (x, big.map(x2 =>  x2(x)).toVector)
      )
     

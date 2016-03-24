@@ -11,13 +11,13 @@ object scoring {
   
   /** Take model predictions from scoreModel and merge with alignedData*/
   
-  def aggImgScores2Biz(scores: INDArray, alignedData: List[(Int, String, Vector[Int])] ) = {
-    assert(scores.size(0) == alignedData.length, "alignedData and scores length are different.  They must be equal")
+  def aggImgScores2Biz(scores: INDArray, alignedData: alignedData ) = {
+    assert(scores.size(0) == alignedData.data.length, "alignedData and scores length are different.  They must be equal")
     def getRowIndices4Biz(mylist: List[String], mybiz: String): List[Int] = mylist.zipWithIndex.filter(x => x._1 == mybiz).map(_._2)
     def mean(xs: List[Double]) = xs.sum / xs.size
 
-    alignedData.map(_._2).distinct.map(x => (x, {
-      val irows = getRowIndices4Biz(alignedData.map(_._2), x)
+    alignedData.getBizIds.distinct.map(x => (x, {
+      val irows = getRowIndices4Biz(alignedData.getBizIds, x)
       val ret = for(row <- irows) yield scores.getRow(row).getColumn(1).toString.toDouble
       mean(ret)
     }))

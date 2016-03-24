@@ -2,6 +2,7 @@ package modeling.training
 
 import modeling.processing.makeDataSets._
 import modeling.io._
+import modeling.processing.alignedData
 
 import java.util.Random
 import java.nio.file._
@@ -25,7 +26,7 @@ import scala.collection.JavaConverters._
 
 object cnn {
   
-  def trainModel(alignedData: List[(Int, String, Vector[Int], Set[Int])], bizClass: Int = 1, saveNN: String = "") = {
+  def trainModel(alignedData: alignedData, bizClass: Int = 1, saveNN: String = "") = {
     
     val ds = makeDataSet(alignedData, bizClass)
 
