@@ -22,17 +22,16 @@ object runPipeline {
   val dataMap = processImages(imgs, resizeImgDim = 128) // nPixels = 64
   val alignedData = new alignedData(dataMap, bizMap, Option(labMap))()
   
-  // training (one model/class)
-  println("processing DONE")
-  val cnn0 = trainModel(alignedData, bizClass = 0, saveNN = "results/modelsV0/model0") // many microparameters hardcoded within
-  val cnn1 = trainModel(alignedData, bizClass = 1, saveNN = "results/modelsV0/model1") // many microparameters hardcoded within
-  val cnn2 = trainModel(alignedData, bizClass = 2, saveNN = "results/modelsV0/model2") // many microparameters hardcoded within
-  val cnn3 = trainModel(alignedData, bizClass = 3, saveNN = "results/modelsV0/model3") // many microparameters hardcoded within
-  val cnn4 = trainModel(alignedData, bizClass = 4, saveNN = "results/modelsV0/model4") // many microparameters hardcoded within
-  val cnn5 = trainModel(alignedData, bizClass = 5, saveNN = "results/modelsV0/model5") // many microparameters hardcoded within
-  val cnn6 = trainModel(alignedData, bizClass = 6, saveNN = "results/modelsV0/model6") // many microparameters hardcoded within
-  val cnn7 = trainModel(alignedData, bizClass = 7, saveNN = "results/modelsV0/model7") // many microparameters hardcoded within
-  val cnn8 = trainModel(alignedData, bizClass = 8, saveNN = "results/modelsV0/model8") // many microparameters hardcoded within
+  // training (one model/class at a time). Many microparameters hardcoded within
+  val cnn0 = trainModel(alignedData, bizClass = 0, saveNN = "results/modelsV0/model0") 
+  val cnn1 = trainModel(alignedData, bizClass = 1, saveNN = "results/modelsV0/model1") 
+  val cnn2 = trainModel(alignedData, bizClass = 2, saveNN = "results/modelsV0/model2") 
+  val cnn3 = trainModel(alignedData, bizClass = 3, saveNN = "results/modelsV0/model3") 
+  val cnn4 = trainModel(alignedData, bizClass = 4, saveNN = "results/modelsV0/model4") 
+  val cnn5 = trainModel(alignedData, bizClass = 5, saveNN = "results/modelsV0/model5") 
+  val cnn6 = trainModel(alignedData, bizClass = 6, saveNN = "results/modelsV0/model6") 
+  val cnn7 = trainModel(alignedData, bizClass = 7, saveNN = "results/modelsV0/model7") 
+  val cnn8 = trainModel(alignedData, bizClass = 8, saveNN = "results/modelsV0/model8") 
 
   // processing test data for scoring
   val bizMapTE = readBiz2ImgLabels("data/labels/test_photo_to_biz.csv")
