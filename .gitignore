@@ -19,3 +19,4 @@ bin/
 
 # this project specifically
 /src/main/scala/sandbox/*
+/data/images/*
