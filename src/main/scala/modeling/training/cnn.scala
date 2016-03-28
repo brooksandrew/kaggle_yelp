@@ -11,7 +11,7 @@ import org.apache.commons.io.FileUtils
 import org.deeplearning4j.eval.Evaluation
 import org.deeplearning4j.nn.api.OptimizationAlgorithm
 import org.deeplearning4j.nn.conf.layers.setup.ConvolutionLayerSetup
-import org.deeplearning4j.nn.conf.layers.{ConvolutionLayer, OutputLayer}
+import org.deeplearning4j.nn.conf.layers.{ConvolutionLayer, OutputLayer, SubsamplingLayer, DenseLayer}
 import org.deeplearning4j.nn.conf.{MultiLayerConfiguration, NeuralNetConfiguration}
 import org.deeplearning4j.nn.multilayer.MultiLayerNetwork
 import org.deeplearning4j.nn.weights.WeightInit
@@ -45,7 +45,7 @@ object cnn {
       val numColumns = Math.sqrt(nfeatures).toInt // numRows * numColumns must equal columns in initial data * channels
       val nChannels = 1 // would be 3 if color image w R,G,B
       val outputNum = 2 // # of classes (# of columns in output)
-      val iterations = 3
+      val iterations = 5
       val splitTrainNum = math.ceil(ds.numExamples*0.8).toInt // 80/20 training/test split
       val seed = 123
       val listenerFreq = 1
@@ -68,15 +68,31 @@ object cnn {
               .seed(seed)
               .iterations(iterations)
               .optimizationAlgo(OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT)
-              .list(2)
-              .layer(0, new ConvolutionLayer.Builder(Array(1, 1):_*)
+              .list(6)
+              .layer(0, new ConvolutionLayer.Builder(4,4)
                       .nIn(nChannels)
                       .stride(2,2) // default stride(2,2)
                       .nOut(nOutPar)
                       .activation("relu")
                       .weightInit(WeightInit.RELU)
                       .build())
-              .layer(1, new OutputLayer.Builder(LossFunctions.LossFunction.MCXENT)
+                      
+              .layer(1, new SubsamplingLayer
+                      .Builder(SubsamplingLayer.PoolingType.MAX, Array(2,2))
+                      .build())
+              .layer(2, new ConvolutionLayer.Builder()
+                      .nOut(10).dropOut(0.5)
+                      .weightInit(WeightInit.XAVIER)
+                      .activation("relu")
+                      .build())
+              .layer(3, new SubsamplingLayer
+                      .Builder(SubsamplingLayer.PoolingType.MAX, Array(2,2))
+                      .build())
+              .layer(4, new DenseLayer.Builder()
+                      .nOut(500)
+                      .activation("relu")
+                      .build())
+              .layer(5, new OutputLayer.Builder(LossFunctions.LossFunction.MCXENT)
                       .nOut(outputNum)
                       .weightInit(WeightInit.XAVIER)
                       .activation("softmax")

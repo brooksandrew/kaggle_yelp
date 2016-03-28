@@ -26,8 +26,9 @@ class alignedData(dataMap: Map[Int, Vector[Int]], bizMap: Map[Int, String], labM
       for { p <- al
       } yield {
         val bid = p._2
-        val labs = if(labMap == None) Set[Int]() else { 
-          if (labMap.get.keySet.contains(bid)) labMap.get(bid) else Set[Int]()
+        val labs = labMap match  {
+          case None => Set[Int]()
+          case x => (if(x.get.keySet.contains(bid)) x.get(bid) else Set[Int]())
         }
         flatten1(p, labs) 
       }
