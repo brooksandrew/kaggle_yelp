@@ -34,7 +34,6 @@ object cnnEpochs {
     println("commence training!!")
     println("class for training: " + bizClass)
 
-    
     val begintime = System.currentTimeMillis()
   
     lazy val log = LoggerFactory.getLogger(cnn.getClass)
@@ -46,11 +45,12 @@ object cnnEpochs {
       val numColumns = Math.sqrt(nfeatures).toInt // numRows * numColumns must equal columns in initial data * channels
       val nChannels = 1 // would be 3 if color image w R,G,B
       val outputNum = 2 // # of classes (# of columns in output)
-      val iterations = 5
+      val iterations = 1
       val splitTrainNum = math.ceil(ds.numExamples*0.5).toInt // 80/20 training/test split
       val seed = 123
       val listenerFreq = 1
-      val nepochs = 5
+      val nepochs = 50
+      val nbatch = 64 // recommended between 16 and 128
       
       //val nOutPar = 500 // default was 1000.  # of output nodes in first layer
   
@@ -69,17 +69,17 @@ object cnnEpochs {
       
       
       // creating epoch dataset iterator
-      val nbatch = 10
       val dsiterTr = new ListDataSetIterator(trainTest.getTrain.asList(), nbatch)
       val dsiterTe = new ListDataSetIterator(trainTest.getTest.asList(), nbatch)
-      val epochit: MultipleEpochsIterator = new MultipleEpochsIterator(nepochs, dsiterTr)
+      val epochitTr: MultipleEpochsIterator = new MultipleEpochsIterator(nepochs, dsiterTr)
+      val epochitTe: MultipleEpochsIterator = new MultipleEpochsIterator(nepochs, dsiterTe)
     
       val builder: MultiLayerConfiguration.Builder = new NeuralNetConfiguration.Builder()
               .seed(seed)
               .iterations(iterations)
               .miniBatch(true)
               .optimizationAlgo(OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT)
-              //.learningRate(0.01)
+              .learningRate(0.001)
               .list(4)
               .layer(0, new ConvolutionLayer.Builder(6,6)
                       .nIn(nChannels)
@@ -114,19 +114,16 @@ object cnnEpochs {
 
       log.info("Train model....")
       System.out.println("Training on " + dsiterTr.getLabels) // this might return null
-      model.fit(dsiterTr)
+      model.fit(epochitTr)
       
-      
-      
+      // I think this could be done without an iterator and batches.
       log.info("Evaluate model....")
-      System.out.println("Testing on !!! ..." + dsiterTe.getLabels)
-   
-      val eval = new Evaluation(dsiterTe.getLabels())
-        while(dsiterTe.hasNext()) {
-            val testDS = dsiterTe.next(nbatch)
-            val output: INDArray = model.output(testDS.getFeatureMatrix())
+      System.out.println("Testing on ...")
+      val eval = new Evaluation(outputNum)
+        while(epochitTe.hasNext) {
+            val testDS = epochitTe.next(nbatch)
+            val output: INDArray = model.output(testDS.getFeatureMatrix)
             eval.eval(testDS.getLabels(), output)
-            System.out.println("this is one batch...")
         }
         System.out.println(eval.stats())
       
