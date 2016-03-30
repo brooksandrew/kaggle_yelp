@@ -22,18 +22,16 @@ import org.nd4j.linalg.factory.Nd4j
 import org.nd4j.linalg.lossfunctions.LossFunctions
 import org.slf4j.LoggerFactory
 import scala.collection.JavaConverters._
-//import org.deeplearning4j.nn.layers.feedforward.dense.DenseLayer
 import org.deeplearning4j.datasets.iterator.MultipleEpochsIterator
 import org.deeplearning4j.datasets.iterator.impl.ListDataSetIterator
 
-
-object cnn {
+object cnnEpochs {
   
-  def trainModel(alignedData: alignedData, bizClass: Int = 1, saveNN: String = "") = {
+  def trainModelEpochs(alignedData: alignedData, bizClass: Int = 1, saveNN: String = "") = {
     
     val ds = makeDataSet(alignedData, bizClass)
 
-    println("commence training..")
+    println("commence training!!")
     println("class for training: " + bizClass)
 
     
@@ -69,6 +67,13 @@ object cnn {
       Nd4j.shuffle(ds.getLabels, new Random(seed), 1) // this changes ds.  Shuffles labels accordingly
       val trainTest: SplitTestAndTrain = ds.splitTestAndTrain(splitTrainNum, new Random(seed)) // Random Seed not needed here
       
+      
+      // creating epoch dataset iterator
+      val nbatch = 10
+      val dsiterTr = new ListDataSetIterator(trainTest.getTrain.asList(), nbatch)
+      val dsiterTe = new ListDataSetIterator(trainTest.getTest.asList(), nbatch)
+      val epochit: MultipleEpochsIterator = new MultipleEpochsIterator(nepochs, dsiterTr)
+    
       val builder: MultiLayerConfiguration.Builder = new NeuralNetConfiguration.Builder()
               .seed(seed)
               .iterations(iterations)
@@ -87,14 +92,6 @@ object cnn {
                       
               .layer(1, new SubsamplingLayer.Builder(SubsamplingLayer.PoolingType.MAX, Array(2,2))
                       .build())
-//              .layer(2, new ConvolutionLayer.Builder()
-//                      .nOut(100)
-//                      .dropOut(0.5)
-//                      .weightInit(WeightInit.XAVIER)
-//                      .activation("relu")
-//                      .build())
-//              .layer(3, new SubsamplingLayer.Builder(SubsamplingLayer.PoolingType.MAX, Array(2,2))
-//                      .build())
               .layer(2, new DenseLayer.Builder()
                       .nOut(100)
                       .activation("relu")
@@ -116,15 +113,23 @@ object cnn {
       model.setListeners(Seq[IterationListener](new ScoreIterationListener(listenerFreq)).asJava)
 
       log.info("Train model....")
-      System.out.println("Training on " + trainTest.getTrain.labelCounts())
-      model.fit(trainTest.getTrain)
+      System.out.println("Training on " + dsiterTr.getLabels) // this might return null
+      model.fit(dsiterTr)
+      
+      
       
       log.info("Evaluate model....")
-      System.out.println("Testing on " + trainTest.getTest.labelCounts)
-      val eval = new Evaluation(outputNum)
-      val output: INDArray = model.output(trainTest.getTest.getFeatureMatrix) // these are the predictions
-      eval.eval(trainTest.getTest.getLabels, output) // this changes the eval object (not to be confused w method w same name)
-      log.info(eval.stats())
+      System.out.println("Testing on !!! ..." + dsiterTe.getLabels)
+   
+      val eval = new Evaluation(dsiterTe.getLabels())
+        while(dsiterTe.hasNext()) {
+            val testDS = dsiterTe.next(nbatch)
+            val output: INDArray = model.output(testDS.getFeatureMatrix())
+            eval.eval(testDS.getLabels(), output)
+            System.out.println("this is one batch...")
+        }
+        System.out.println(eval.stats())
+      
       
       val endtime = System.currentTimeMillis()
       log.info("End time: " + java.util.Calendar.getInstance().getTime())
