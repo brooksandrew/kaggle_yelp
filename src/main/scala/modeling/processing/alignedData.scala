@@ -43,6 +43,7 @@ class alignedData(dataMap: Map[Int, Vector[Int]], bizMap: Map[Int, String], labM
   def getImgVectors = data.map(_._3)
   def getBizLabels = data.map(_._4)
   
+  def getImgCntsPerBiz = getBizIds.groupBy(identity).mapValues(x => x.size) 
   
   
   

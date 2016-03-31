@@ -34,22 +34,22 @@ object runPipeline {
   val cnn7 = trainModelEpochs(alignedData, bizClass = 7, saveNN = "results/modelsV0/model7_img10k_epoch50_batch64_pixels64") 
   val cnn8 = trainModelEpochs(alignedData, bizClass = 8, saveNN = "results/modelsV0/model8_img10k_epoch50_batch64_pixels64") 
 
-//  // processing test data for scoring
-//  val bizMapTE = readBiz2ImgLabels("data/labels/test_photo_to_biz.csv")
-//  val imgsTE = getImageIds("data/images/test/", bizMapTE, bizMapTE.map(_._2).toSet.slice(0,12).toList).slice(0, 100)
-//  val dataMapTE = processImages(imgsTE, resizeImgDim = 128)
-//  val alignedDataTE = new alignedData(dataMapTE, bizMapTE, None)()
-//  
-//  // creating csv file to submit to kaggle (scores all models)
-//  val kaggleResults = createKaggleSubmitObj(alignedDataTE, "results/ModelsV0/")
-//  val kaggleSubmitResults = writeKaggleSubmissionFile("results/kaggleSubmission/kaggleSubmit_3_24_2016_trash.csv", kaggleResults, thresh = 0.5)
-//  
-//  // example of how to score just model
-//  val dsTE = makeDataSetTE(alignedDataTE)
-//  val model = loadNN("results/modelsV0/model1.json", "results/modelsV0/model1.bin")
-//  val predsTE = scoreModel(model, dsTE)
-//  val bizScoreAgg = aggImgScores2Biz(predsTE, alignedDataTE)
-//  println(bizScoreAgg)
+  // processing test data for scoring
+  val bizMapTE = readBiz2ImgLabels("data/labels/test_photo_to_biz.csv")
+  val imgsTE = getImageIds("data/images/test/", bizMapTE, bizMapTE.map(_._2).toSet.slice(0,12).toList).slice(0, 100)
+  val dataMapTE = processImages(imgsTE, resizeImgDim = 64)
+  val alignedDataTE = new alignedData(dataMapTE, bizMapTE, None)()
+  
+  // creating csv file to submit to kaggle (scores all models)
+  val kaggleResults = createKaggleSubmitObj(alignedDataTE, "results/ModelsV0/")
+  val kaggleSubmitResults = writeKaggleSubmissionFile("results/kaggleSubmission/kaggleSubmit_3_24_2016_trash.csv", kaggleResults, thresh = 0.5)
+  
+  // example of how to score just model
+  val dsTE = makeDataSetTE(alignedDataTE)
+  val model = loadNN("results/modelsV0/model1.json", "results/modelsV0/model1.bin")
+  val predsTE = scoreModel(model, dsTE)
+  val bizScoreAgg = aggImgScores2Biz(predsTE, alignedDataTE)
+  println(bizScoreAgg)
   
   }
 }
