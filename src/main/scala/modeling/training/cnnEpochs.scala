@@ -46,11 +46,11 @@ object cnnEpochs {
       val nChannels = 1 // would be 3 if color image w R,G,B
       val outputNum = 2 // # of classes (# of columns in output)
       val iterations = 1
-      val splitTrainNum = math.ceil(ds.numExamples*0.5).toInt // 80/20 training/test split
+      val splitTrainNum = math.ceil(ds.numExamples*0.8).toInt // 80/20 training/test split
       val seed = 123
       val listenerFreq = 1
-      val nepochs = 50
-      val nbatch = 64 // recommended between 16 and 128
+      val nepochs = 20
+      val nbatch = 128 // recommended between 16 and 128
       
       //val nOutPar = 500 // default was 1000.  # of output nodes in first layer
   
@@ -79,21 +79,22 @@ object cnnEpochs {
               .iterations(iterations)
               .miniBatch(true)
               .optimizationAlgo(OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT)
-              .learningRate(0.001)
+              .learningRate(0.01)
+              .momentum(0.9)
               .list(4)
               .layer(0, new ConvolutionLayer.Builder(6,6)
                       .nIn(nChannels)
                       .stride(2,2) // default stride(2,2)
-                      .nOut(50)
+                      .nOut(20) // # of feature maps
                       .dropOut(0.5)
-                      .activation("relu")
+                      .activation("relu") // rectified linear units
                       .weightInit(WeightInit.RELU)
                       .build())
                       
               .layer(1, new SubsamplingLayer.Builder(SubsamplingLayer.PoolingType.MAX, Array(2,2))
                       .build())
               .layer(2, new DenseLayer.Builder()
-                      .nOut(100)
+                      .nOut(40)
                       .activation("relu")
                       .build())
               .layer(3, new OutputLayer.Builder(LossFunctions.LossFunction.MCXENT)

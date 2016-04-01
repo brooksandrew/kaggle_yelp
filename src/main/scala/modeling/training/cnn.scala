@@ -68,7 +68,7 @@ object cnn {
       Nd4j.shuffle(ds.getFeatureMatrix, new Random(seed), 1) // this changes ds.  Shuffles rows
       Nd4j.shuffle(ds.getLabels, new Random(seed), 1) // this changes ds.  Shuffles labels accordingly
       val trainTest: SplitTestAndTrain = ds.splitTestAndTrain(splitTrainNum, new Random(seed)) // Random Seed not needed here
-      
+       
       val builder: MultiLayerConfiguration.Builder = new NeuralNetConfiguration.Builder()
               .seed(seed)
               .iterations(iterations)
@@ -79,7 +79,7 @@ object cnn {
               .layer(0, new ConvolutionLayer.Builder(6,6)
                       .nIn(nChannels)
                       .stride(2,2) // default stride(2,2)
-                      .nOut(50)
+                      .nOut(50) // # of feature maps
                       .dropOut(0.5)
                       .activation("relu")
                       .weightInit(WeightInit.RELU)

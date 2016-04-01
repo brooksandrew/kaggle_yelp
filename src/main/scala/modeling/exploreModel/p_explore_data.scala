@@ -23,7 +23,7 @@ object p_explore_data extends App {
   
   
   val dsTE = makeDataSetTE(alignedData)
-  val model = loadNN(path4interpreter + "results/modelsV0/model0_img10k_epoch50_batch64_pixels64.json", path4interpreter + "results/modelsV0/model0_img10k_epoch50_batch64_pixels64.bin")
+  val model = loadNN(path4interpreter + "results/modelsV0/model2_img16k_epoch15_batch128_pixels64_nout100_200.json", path4interpreter + "results/modelsV0/model2_img16k_epoch15_batch128_pixels64_nout100_200.bin")
   val predsTE = scoreModel(model, dsTE)
   
   val bizScoreAgg = aggImgScores2Biz(predsTE, alignedData)
