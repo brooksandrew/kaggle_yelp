@@ -30,7 +30,6 @@ likely that you will not often run the project in its entireity very often.
 2. > Sbt 
 3. > run
 
-### Getting into the code
 
 
 
